@@ -18,7 +18,9 @@ export default class GenerateTemplate extends Command {
       required: false,
       multiple: false,
       parse: async (directory: string): Promise<string> => {
-        return path.resolve(directory);
+        // Sanitize the directory input to prevent path traversal
+        const sanitizedDirectory = path.normalize(directory).replace(/^(\.\.[\/\\])+/, '');
+        return path.resolve(sanitizedDirectory);
       },
     }),
   };
@@ -36,7 +38,9 @@ export default class GenerateTemplate extends Command {
       t("command.generate_template.input.project_name")
     );
 
-    const projectPath = path.join(flags.output, projectName);
+    // Sanitize the projectName to prevent path traversal
+    const sanitizedProjectName = path.normalize(projectName).replace(/^(\.\.[\/\\])+/, '');
+    const projectPath = path.join(flags.output, sanitizedProjectName);
 
     await inheritTheme({
       projectPath,
